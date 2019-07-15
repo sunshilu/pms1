@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.pms.system.mapper.UserMapper">
+	<resultMap id="BaseResultMap"
+		type="com.example.pms.system.model.UserModel">
+		<result column="id" property="id" />
+		<result column="code" property="code" />
+		<result column="password" property="password" />
+		<result column="name" property="name" />
+		<result column="role_code" property="roleCode" />
+		<result column="parent_code" property="parentCode" />
+		<result column="parent_name" property="parentName" />
+	</resultMap>
+	<!-- 查询字段 -->
+	<sql id="Base_Column_List">
+		id, code,password, name, role_code ,parent_code
+	</sql>
+	<!-- 模糊查询条件 -->
+	<sql id="Where_Like">
+		where 1=1
+		<if test="code!=null and code!=''">and code like #{code}</if>
+		<if test="name!=null and name!=''">and name like #{name}</if>
+		<if test="roleCode!=null and roleCode!=''">and role_code like #{roleCode}</if>
+		<if test="parentCode!=null and parentCode!=''">and parent_code like #{parentCode}</if>
+	</sql>
+	<!-- 根据条件模糊查询记录,限制查询的条数 -->
+	<select id="selectAll" resultMap="BaseResultMap" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		,(select name from pms.user where code=u.parent_code) parent_name
+		from pms.user u
+		<include refid="Where_Like" />
+		limit #{rowStart},#{pageLimit}
+	</select>
+	<!-- 	根据条件查询记录条数 -->
+	<select id="selectCount" resultType="int" parameterType="Object">
+		select count(1)
+		from pms.user
+		<include refid="Where_Like" />
+	</select>
+	<!-- 根据code查询用户 -->
+	<select id="selectModel" resultMap="BaseResultMap"
+		parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from pms.user
+		where code = #{code}
+	</select>
+	<insert id="insert" parameterType="Object">
+		insert into
+		pms.user(code,password, name, role_code ,parent_code)
+		values(#{code},
+		#{password}, #{name},#{roleCode},#{parentCode})
+	</insert>
+	<!-- 根据code删除用户 -->
+	<delete id="del" parameterType="Object">
+		delete from pms.user
+		where code = #{code}
+	</delete>
+	<sql id="Set_Column_List">
+		<trim suffixOverrides=",">
+			<if test="password!=null and password!=''"> password = #{password}, </if>
+			<if test="name!=null and name!=''"> name = #{name}, </if>
+			<if test="roleCode!=null and roleCode!=''"> role_code =#{roleCode}, </if>
+			<if test="parentCode!=null and parentCode!=''"> parent_code =#{parentCode}, </if>
+		</trim>
+	</sql>
+	<!-- 根据code修改用户信息 -->
+	<update id="upd" parameterType="Object">
+		update pms.user
+		set<include refid="Set_Column_List" />
+		where code = #{code}
+	</update>
+</mapper>

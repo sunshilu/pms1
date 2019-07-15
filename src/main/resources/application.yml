@@ -1,0 +1,33 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /pms
+spring:
+  datasource:
+    password: 123456
+    username: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/pms?useSSL=false&useUnicode=true&characterEncoding=UTF8&allowMultiQueries=true&serverTimezone=Hongkong
+  mvc:
+    view:
+      prefix: /
+      suffix: .jsp
+  servlet:
+    multipart:
+      max-file-size:
+        4096
+      max-request-size:
+        104857600
+mybatis:
+  mapper-locations: classpath:com/example/pms/system/mapper/*.xml
+  type-aliases-package: com.example.pms.system.model
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+logging:
+  level:
+     com.example.pms.system.mapper : debug
+#file:
+#  path:
+#    real: D://file/
+#    fictitious: http://localhost:8080/file
+  

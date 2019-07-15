@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.pms.system.mapper.OrderMapper">
+<resultMap id="BaseResultMap"
+		type="com.example.pms.system.model.OrderModel">
+		<result column="id" property="id" />
+		<result column="user_code" property="userCode" />
+		<result column="customer_code" property="customerCode" />
+		<result column="product_code" property="productCode" />
+		<result column="count" property="count" />
+		<result column="time" property="time" />
+		<result column="status" property="status" />
+		<association property="userModel"
+			javaType="com.example.pms.system.model.UserModel">
+			<result column="user_code" property="code" />
+			<result column="user_name" property="name" />
+		</association>
+		<association property="customerModel"
+			javaType="com.example.pms.system.model.CustomerModel">
+			<result column="customer_code" property="code" />
+			<result column="customer_name" property="name" />
+			<result column="customer_status" property="status" />
+			<result column="customer_email" property="email" />
+		</association>
+		<association property="productModel"
+			javaType="com.example.pms.system.model.ProductModel">
+			<result column="product_code" property="code" />
+			<result column="product_name" property="name" />
+			<result column="product_sum" property="sum" />
+			<result column="product_cost" property="cost" />
+		</association>
+	</resultMap>
+	<!-- table all fields sql片段 -->
+	<sql id="Base_Column_List">
+		id, user_code,customer_code,product_code,count,time,status
+	</sql>
+	<!-- 模糊查询条件 -->
+	<sql id="Where_Like">
+		where 1=1
+		<if test="userCode!=null and userCode!=''">and user_code like #{userCode}</if>
+		<if test="customerCode!=null and customerCode!=''">and customer_code like #{customerCode}</if>
+	</sql>
+	<!-- 根据条件模糊查询记录,限制查询的条数 -->
+	<select id="selectAll" resultMap="BaseResultMap"
+		parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		,(select name from user where code=o.user_code) user_name
+		,(select name from customer where code=o.customer_code) customer_name
+		,(select status from customer where code=o.customer_code) customer_status
+		,(select email from customer where code=o.customer_code) customer_email
+		,(select name from product where code=o.product_code) product_name
+		,(select sum from product where code=o.product_code) product_sum
+		,(select cost from product where code=o.product_code) product_cost
+		from pms.order o
+		<include refid="Where_Like" />
+		limit #{rowStart},#{pageLimit}
+	</select>
+	<!-- 	根据条件查询记录条数 -->
+	<select id="selectCount" resultType="int" parameterType="Object">
+		select count(1)
+		from pms.order
+		<include refid="Where_Like" />
+	</select>
+	<!-- 根据roleCode和menuCode查询用户 -->
+	<select id="selectModel2" resultMap="BaseResultMap"
+		parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from pms.order
+		where user_code = #{userCode} and customer_code =#{customerCode} and product_code=#{productCode}
+	</select>
+	<insert id="insert" parameterType="Object">
+		insert into
+		pms.order(user_code,customer_code,product_code,time,count,status)
+		values(#{userCode},#{customerCode},#{productCode},#{time},#{count},#{status})
+	</insert>
+	<!-- 根据id查询用户 -->
+	<select id="selectModel" resultMap="BaseResultMap"
+		parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from pms.order
+		where id = #{code}
+	</select>
+	<!-- 根据id删除用户 -->
+	<delete id="del" parameterType="Object">
+		delete from pms.order
+		where id = #{code}
+	</delete>
+	<sql id="Set_Column_List">
+		<trim suffixOverrides=",">
+			<if test="time!=null and time!=''"> time =#{time}, </if>
+			<if test="count!=null and count!=''"> count =#{count}, </if>
+			<if test="status!=null and status!=''"> status =#{status}, </if>
+		</trim>
+	</sql>
+	<!-- 根据code修改用户信息 -->
+	<update id="upd" parameterType="Object">
+		update pms.order
+		set<include refid="Set_Column_List" />
+		where user_code = #{userCode} and customer_code =#{customerCode} and product_code =#{productCode}
+	</update>
+
+</mapper>

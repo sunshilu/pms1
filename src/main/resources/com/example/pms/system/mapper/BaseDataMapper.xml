@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.pms.system.mapper.BaseDataMapper">
+<resultMap id="BaseResultMap"
+		type="com.example.pms.system.model.BaseModel">
+		<result column="id" property="id" />
+		<result column="code" property="code" />
+		<result column="name" property="name" />
+		<result column="description" property="description" />
+		<result column="type" property="type" />
+	</resultMap>
+	<!-- 查询字段 -->
+	<sql id="Base_Column_List">
+		id, code, name, description ,type
+	</sql>
+	<!-- 模糊查询条件 -->
+	<sql id="Where_Like">
+		where 1=1
+		<if test="code!=null and code!=''">and code like #{code}</if>
+		<if test="name!=null and name!=''">and name like #{name}</if>
+		<if test="description!=null and description!=''">and description like #{description}</if>
+		<if test="type!=null and type!=''">and type like #{type}</if>
+	</sql>
+	<!-- 根据条件模糊查询记录,限制查询的条数 -->
+	<select id="selectAll" resultMap="BaseResultMap" parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from pms.base
+		<include refid="Where_Like" />
+		limit #{rowStart},#{pageLimit}
+	</select>
+	<!-- 	根据条件查询记录条数 -->
+	<select id="selectCount" resultType="int" parameterType="Object">
+		select count(1)
+		from pms.base
+		<include refid="Where_Like" />
+	</select>
+	<!-- 根据code查询用户 -->
+	<select id="selectModel" resultMap="BaseResultMap"
+		parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from pms.base
+		where code = #{code}
+	</select>
+	<insert id="insert" parameterType="Object">
+		insert into
+		pms.base(code, name, description ,type)
+		values(#{code}, #{name},#{description},#{type})
+	</insert>
+	<!-- 根据code删除用户 -->
+	<delete id="del" parameterType="Object">
+		delete from pms.base
+		where code = #{code}
+	</delete>
+	<sql id="Set_Column_List">
+		<trim suffixOverrides=",">
+			<if test="description!=null and description!=''"> description = #{description}, </if>
+			<if test="name!=null and name!=''"> name = #{name}, </if>
+			<if test="type!=null and type!=''"> type = #{type}, </if>
+		</trim>
+	</sql>
+	<!-- 根据code修改用户信息 -->
+	<update id="upd" parameterType="Object">
+		update pms.base
+		set<include refid="Set_Column_List" />
+		where code = #{code}
+	</update>
+</mapper>
